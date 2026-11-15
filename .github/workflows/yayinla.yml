@@ -10,6 +10,10 @@ on:
         description: "Kuru deneme: sıradaki gönderinin konteynerini kurar, yayınlamaz"
         type: boolean
         default: false
+      otomatik:
+        description: "Dış zamanlayıcı (cron-job.org) tetikledi: YAYIN_ACIK evet değilse çalışmaz"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -20,8 +24,8 @@ concurrency:
 
 jobs:
   yayinla:
-    # Açma/kapama: depo değişkeni YAYIN_ACIK = evet. Elle çalıştırma her zaman olur.
-    if: vars.YAYIN_ACIK == 'evet' || github.event_name == 'workflow_dispatch'
+    # Açma/kapama: depo değişkeni YAYIN_ACIK = evet. Zamanlı çalışma ve dış zamanlayıcı (otomatik = true) buna uyar; elle çalıştırma her zaman olur.
+    if: (vars.YAYIN_ACIK == 'evet' && (github.event_name == 'schedule' || inputs.otomatik)) || (github.event_name == 'workflow_dispatch' && !inputs.otomatik)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
