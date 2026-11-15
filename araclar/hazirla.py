@@ -13,7 +13,7 @@ import openpyxl
 from PIL import Image, ImageFilter, ImageOps, ImageStat
 
 TR = timezone(timedelta(hours=3))
-ORAN = 4 / 5            # Instagram API alt sınırı (4:5 - 1.91:1)
+ORAN = 3 / 4            # dik 3:4 (Yasin Bey 15.11 "4:3 yapın"); API belgede 4:5 diyor ama 3:4 konteyneri 15.11 denemede FINISHED
 EN_GENIS = 1440         # API bundan genişini küçültüyor
 DUZ_ZEMIN_STD = 6.0     # kenar şeridinin bu sapmanın altı düz zemin sayılır
 
@@ -51,7 +51,7 @@ def dort_bes(yol: str) -> Image.Image:
         im = zemin
     im = im.convert("RGB")
     w, h = im.size
-    if w / h < ORAN:            # dikey ve 4:5'ten uzun: yanlara boşluk
+    if w / h < ORAN:            # dikey ve 3:4ten uzun: yanlara boşluk
         tw, th = round(h * ORAN), h
     elif w / h > 1.91:          # çok yatay: üst-alta boşluk
         tw, th = w, round(w / 1.91)
