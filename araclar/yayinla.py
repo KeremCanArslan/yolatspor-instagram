@@ -22,7 +22,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-API = "https://graph.facebook.com/v26.0/"
+API = "https://graph.facebook.com/v27.0/"
 TR = timezone(timedelta(hours=3))
 KOK = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PLAN = os.path.join(KOK, "gonderiler.json")
