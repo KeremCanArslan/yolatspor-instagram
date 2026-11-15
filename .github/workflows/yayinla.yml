@@ -1,0 +1,49 @@
+name: Instagram yayın
+
+on:
+  schedule:
+    # UTC 06:05-19:50 = TR 09:05-22:50, 15 dakikada bir
+    - cron: "5,20,35,50 6-19 * * *"
+  workflow_dispatch:
+    inputs:
+      kuru:
+        description: "Kuru deneme: sıradaki gönderinin konteynerini kurar, yayınlamaz"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-yayin
+  cancel-in-progress: false
+
+jobs:
+  yayinla:
+    # Açma/kapama: depo değişkeni YAYIN_ACIK = evet. Elle çalıştırma her zaman olur.
+    if: vars.YAYIN_ACIK == 'evet' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: araclar
+
+      - name: Zamanı gelen gönderileri yayınla
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_USER_ID: ${{ vars.IG_USER_ID }}
+          GORSEL_KOK: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/
+        run: python3 araclar/yayinla.py ${{ inputs.kuru && '--kuru' || '' }}
+
+      - name: Durumu kaydet
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add durum.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Yayın durumu"
+            git pull --rebase
+            git push
+          fi
