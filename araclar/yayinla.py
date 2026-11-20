@@ -15,6 +15,7 @@ Kullanım:
 import argparse
 import json
 import os
+import subprocess
 import sys
 import time
 import urllib.error
@@ -114,6 +115,17 @@ def oku(yol: str, bos):
         return json.load(f)
 
 
+def guncelle() -> None:
+    """Actions'ta depoyu main'in son hâline getirir.
+
+    Kuyrukta bekleyen çalışma, tetiklendiği anın commit'ini alır; önceki çalışma
+    o arada durum.json'a yazıp push ettiyse onu görmez, aynı gönderiyi yeniden
+    dener ve durum.json çakışmasıyla kırmızı biter (18.11 ve 20.11).
+    """
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        subprocess.run(["git", "-C", KOK, "pull", "--ff-only", "-q"], check=True)
+
+
 def kaydet(durum: dict) -> None:
     gecici = DURUM + ".tmp"
     with open(gecici, "w", encoding="utf-8") as f:
@@ -136,6 +148,7 @@ def main() -> int:
         print("IG_TOKEN, IG_USER_ID ve sonu / ile biten GORSEL_KOK gerekli")
         return 2
 
+    guncelle()
     plan = oku(PLAN, [])
     durum = oku(DURUM, {})
     simdi = datetime.now(TR)
